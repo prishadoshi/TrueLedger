@@ -76,7 +76,7 @@ export async function getUserAccounts() {
     const {userId} = await auth();
     if (!userId ) throw new Error("Unauthorized");
 
-    const user= await db.userfindUnique({
+    const user= await db.user.findUnique({
         where: {clerkUserId: userId}
     })
 
@@ -90,12 +90,12 @@ export async function getUserAccounts() {
         include:{
             _count:{
                 select:{
-                    transcations: true,
+                    transactions: true,
                 },
             },
         },
     });
 
-    const serializedAccount= serializeTransaction(accounts);
+    const serializedAccount= accounts.map(serializeTransaction);
     return serializedAccount;
 }
