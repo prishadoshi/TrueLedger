@@ -1,22 +1,22 @@
-"user server"
+"use server";
+
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server"
 import { revalidatePath } from "next/cache";
-import Error from "next/error";
-
-   //server-side actions
 
 const serializeTransaction = (obj)=>{
     const serialized= {...obj};
     if(obj.balance){
         serialized.balance = obj.balance.toNumber();
     } 
+    return serialized;
 }
+
 export async function createAccount(data){
     try {
         const {userId}= await auth();
         if (!userId) throw new Error("Unauthorized");
-
+        
         const user = await db.user.findUnique({
             where: { clerkUserId : userId},
         })
@@ -35,16 +35,19 @@ export async function createAccount(data){
         const existingAccounts = await db.account.findMany({
             where: {userId: user.id}
         })
-
+        
+        // If it's the first account, make it default regardless of user input
+        // If not, use the user's preference
         const shouldBeDefault = existingAccounts.length === 0? true: data.isDefault;
 
         if(shouldBeDefault){    //make other accounts not default(only one account can be default)
             await db.account.updateMany({
-                where: {userid: user.id, isDefault: true},
+                where: {userId: user.id, isDefault: true},
                 data: {isDefault: false}
             })
         }
 
+        // Create new account
         const account =await db.account.create({
             data:{
                 ...data,
@@ -54,6 +57,7 @@ export async function createAccount(data){
             }
         })
 
+        // Serialize the account before returning
         const serializedAccount= serializeTransaction(account);
 
         revalidatePath("/dashboard")
