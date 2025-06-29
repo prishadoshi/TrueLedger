@@ -26,9 +26,9 @@ async function DashboardPage(){
             </Card>
           </CreateAccountDrawer>
 
-          {accounts.length>0 && accounts?.map((account)=>{
-            return <AccountCard key={account.id} account={account}/ >
-          })}
+          {accounts.length>0 && accounts?.map((account)=>(
+            <AccountCard key={account.id} account={account} />
+          ))}
         </div>
     </div>
   )
