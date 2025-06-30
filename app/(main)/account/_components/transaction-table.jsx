@@ -294,7 +294,7 @@ const TransactionTable = ({ transactions }) => {
                                         </span></TableCell>
                                     <TableCell className="text-right font-medium" style={{ color: transaction.type === "EXPENSE" ? "red" : "green" }}>
                                         {transaction.type === "EXPENSE" ? "-" : "+"}
-                                        ${Number(transaction.amount).toFixed(2)};
+                                        ${(transaction.amount).toFixed(2)};
                                     </TableCell>
                                     <TableCell>{transaction.isRecurring ? (
                                         <TooltipProvider>

@@ -42,7 +42,7 @@ export async function updateDefaultAccount(accountId) {
         revalidatePath("/dashboard");
         return {success: true, data: serializeTransaction(account)};
     } catch (error) {
-        return {success: false, error: message};
+        return {success: false, error: error.message};
     }
 }
 
@@ -72,7 +72,7 @@ export async function getAccountWithTransactions(accountId) {
     if (!account) return null;
     return{
         ...serializeTransaction(account),
-        transcations: account.transactions.map(serializeTransaction),
+        transactions: account.transactions.map(serializeTransaction),
     }
 }
 
