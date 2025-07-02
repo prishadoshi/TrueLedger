@@ -9,7 +9,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import useFetch from '@/hooks/use-fetch';
-import { transactionSchema } from '@/lib/schema';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
@@ -18,14 +17,16 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { transactionSchema } from '@/app/lib/schema';
+import { RecieptScanner } from './recipt-scanner';
 
 const AddTransactionForm = ({ accounts, categories }) => {
     const router = useRouter();
     const { register,
-        setValue,
         handleSubmit,
         formState: { errors },
         watch,
+        setValue,
         getValues,
         reset } = useForm({
             resolver: zodResolver(transactionSchema),
@@ -73,10 +74,27 @@ const AddTransactionForm = ({ accounts, categories }) => {
         (category) => category.type === type
     )
 
+    const handleScanComplete = (scannedData) => {
+        console.log(scannedData)
+        if (scannedData) {
+            
+            setValue("amount", scannedData.amount.toString());
+            setValue("date", new Date(scannedData.date));
+            if (scannedData.description) {
+                setValue("description", scannedData.description)
+            }
+            if (scannedData.category) {
+                setValue("category", scannedData.category)
+            }
+        }
+    };
+
+
     return (
         <form className='space-y-6' onSubmit={handleSubmit(onSubmit)}>
             {/* AI Reciept Scanner */}
-
+            <RecieptScanner onScanComplete={handleScanComplete} />
+            
             {/* Type */}
             <div className='space-y-2'>
                 <label className='text-sm font-medium'>Type</label>
@@ -145,7 +163,7 @@ const AddTransactionForm = ({ accounts, categories }) => {
                 <label className="text-sm font-medium">Category</label>
                 <Select
                     onValueChange={(value) => setValue("category", value)}
-                    defaultValue={getValues("category")}
+                    value={getValues("category")}
                 >
                     <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select category" />
